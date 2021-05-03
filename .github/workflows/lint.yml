@@ -26,6 +26,5 @@ jobs:
       
     - name: Run vet & lint
       run: |
-        ls
-        go vet .
-        golint .
+        cd ./src/ && go vet .
+        cd ./src/ && golint .
