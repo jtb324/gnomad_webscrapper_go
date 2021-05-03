@@ -42,8 +42,35 @@ func format_query(gene_id string) []byte {
 	return jsonValue
 }
 
+type Gene struct {
+	Gene gene_info `json:"gene"`
+}
+type gene_info struct {
+	Start   int    `json:"start"`
+	Stop    int    `json:"stop"`
+	Omim_id string `json:"omim_id"`
+	Name    string `json:"name"`
+	Chrom   int    `json:"chrom"`
+}
+
+type Data struct {
+	Data Gene `json:"data"`
+}
+
 func fetch_response(api_website string, gene_list []string) {
-	/*function to fetch the reponse from the the bnomad api*/
+	/*function to fetch the reponse from the the bnomad api
+	Parameters
+	__________
+	api_website string
+		url to the api of interest
+
+	gene_list []string
+		slice of strings that has each gene id
+	*/
+	request_made := 0
+
+	var gene_info_slice []Data
+
 	for i := 0; i < len(gene_list); i++ {
 
 		jsonByteString := format_query(gene_list[i])
@@ -67,12 +94,22 @@ func fetch_response(api_website string, gene_list []string) {
 		defer response.Body.Close()
 
 		data, _ := ioutil.ReadAll(response.Body)
-		fmt.Println(string(data))
-		// body, error := ioutil.ReadAll(response.Body)
 
-		// if error != nil {
-		// 	log.Fatalln(error)
-		// }
-		// fmt.Println(string(body))
+		//convert the data to a json object
+		var json_response Data
+
+		json.Unmarshal(data, &json_response)
+
+		fmt.Println(json_response.Data.Gene.Name)
+
+		//creating a slice that has all the gene information from the api
+		gene_info_slice = append(gene_info_slice, json_response)
+		//updating request counter
+		request_made++
+		// making the program sleep for a second after every three requests
+		if request_made%4 == 0 {
+			time.Sleep(time.Second)
+		}
 	}
+	fmt.Println(len(gene_info_slice))
 }
