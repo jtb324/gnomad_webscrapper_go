@@ -10,5 +10,5 @@ build_project:
 	@cd src && go build -o ../build/webscrapper
 
 unittest:
-	@echo "performing unittest"
+	@echo "performing all unittest"
 	@ cd src && go test
