@@ -1,5 +1,5 @@
 gene
 APC
 ACE
-BCRA1
-BCRA2
+BRCA1
+BRCA2
