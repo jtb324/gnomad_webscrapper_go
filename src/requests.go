@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -50,14 +49,14 @@ type gene_info struct {
 	Stop    int    `json:"stop"`
 	Omim_id string `json:"omim_id"`
 	Name    string `json:"name"`
-	Chrom   int    `json:"chrom"`
+	Chrom   string `json:"chrom"`
 }
 
 type Data struct {
 	Data Gene `json:"data"`
 }
 
-func fetch_response(api_website string, gene_list []string) {
+func fetch_response(api_website string, gene_list []string) []Data {
 	/*function to fetch the reponse from the the bnomad api
 	Parameters
 	__________
@@ -100,8 +99,6 @@ func fetch_response(api_website string, gene_list []string) {
 
 		json.Unmarshal(data, &json_response)
 
-		fmt.Println(json_response.Data.Gene.Name)
-
 		//creating a slice that has all the gene information from the api
 		gene_info_slice = append(gene_info_slice, json_response)
 		//updating request counter
@@ -111,5 +108,5 @@ func fetch_response(api_website string, gene_list []string) {
 			time.Sleep(time.Second)
 		}
 	}
-	fmt.Println(len(gene_info_slice))
+	return gene_info_slice
 }
