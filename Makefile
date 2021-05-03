@@ -11,4 +11,4 @@ build_project:
 
 unittest:
 	@echo "performing all unittest"
-	@ cd src && go test
+	@ cd src && go test -v
