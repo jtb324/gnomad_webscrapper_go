@@ -7,11 +7,11 @@ help:
 
 remove-prior-build:
 	@echo "removing the executable from the previous build"
-	@rm build/*
+	@rm -r bin
 
 build-project:
 	@echo "building project"
-	@cd src/ && go build -o ./bin/webscrapper 
+	@cd src/ && go build -o ../bin/webscrapper 
 
 unittest:
 	@echo "performing all unittest"
