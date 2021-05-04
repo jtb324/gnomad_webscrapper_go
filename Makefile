@@ -1,9 +1,9 @@
 help:
-	@echo "---------------------------HELP------------------------"
+	@echo "------------------------------------HELP-----------------------------------"
 	@echo "To test the project type make unittest"
 	@echo "To remove previous build run make build"
-	@echo "To clean files from a previous run type make clean"
-	@echo "-------------------------------------------------------"
+	@echo "To remove the build files from a previous run type make remove-prior-build"
+	@echo "---------------------------------------------------------------------------"
 
 remove-prior-build:
 	@echo "removing the executable from the previous build"
