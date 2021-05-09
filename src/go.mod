@@ -1,8 +1,9 @@
-module github.com/jtb324/mega_probe_converter.git
+module github.com/jtb324/go_mega_probe_converter.git
 
 go 1.16
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/cheggaaa/pb/v3 v3.0.8 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect

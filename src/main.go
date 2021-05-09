@@ -12,9 +12,12 @@ func main() {
 	//going through the input file and getting a slice of all the genes
 	gene_slice := parse_input(input_path)
 
-	_ = fetch_response(api_endpoint, gene_slice)
+	// getting a list of structs that have info about the gene of interest
+	gene_info_list := fetch_response(api_endpoint, gene_slice)
 
+	// initializing the database
 	db, dbName, _ := initialize_db()
 
-	make_table(db, dbName)
+	// making the table and insert values into it
+	_ = make_table(db, dbName, gene_info_list)
 }

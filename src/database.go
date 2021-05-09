@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"golang.org/x/term"
-
+	"github.com/cheggaaa/pb/v3"
 	_ "github.com/go-sql-driver/mysql"
+	"golang.org/x/term"
 )
 
 // struct to hold values that will be used for the database connection
@@ -92,14 +92,15 @@ func createDatabaseString(parameter_struct databaseParams, dbName string) string
 		parameter_struct.hostname,
 		dbName)
 }
-func create_new_db(database *sql.DB, databaseName string) {
+func create_new_db(database *sql.DB, databaseName string) error {
 	/*function to create the new database
 	Parameters
 	__________
 	database *sql.DB
 		pointer to the database object
 
-	databaseName	*/
+	databaseName
+	*/
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancelfunc()
 
@@ -109,11 +110,7 @@ func create_new_db(database *sql.DB, databaseName string) {
 		log.Printf("Error %s when creating DB\n", err)
 	}
 
-	// no, err := res.RowsAffected()
-	// if err != nil {
-	// 	log.Printf("Error %s when fetching rows", err)
-	// }
-	// log.Printf("rows affected %d\n", no)
+	return err
 }
 
 func initialize_db() (*sql.DB, string, error) {
@@ -128,7 +125,7 @@ func initialize_db() (*sql.DB, string, error) {
 		log.Fatal(err)
 	}
 
-	create_new_db(database, parameters.dbName)
+	_ = create_new_db(database, parameters.dbName)
 
 	database.Close()
 
@@ -159,26 +156,86 @@ func initialize_db() (*sql.DB, string, error) {
 	return database, parameters.dbName, nil
 }
 
-func make_table(database *sql.DB, dbName string) {
-	query := `CREATE TABLE IF NOT EXISTS ` + dbName + `(gene_id varchar(10), gene_start int,  
-        gene_stop int, OMIM_id varchar(10), gene_name varchar(10), chromosome_number int)`
-	fmt.Println(query)
+func insert(db *sql.DB, data_struct Data, dbName string) error {
+	/*function to insert a new row into the mysql table
+	Parameters
+	__________
+	db *sql.DB
+		pointer to the database object
+
+	data_struct Data
+		The data struct that has fileds for things like the gene id,
+		start and stop positions, omim id, full gene name, and chromosome id
+	*/
+	// creating the query string
+	query := "INSERT INTO " + dbName + "(gene_id, gene_start, gene_stop, OMIM_id, gene_name, chromosome_number) VALUES (?, ?, ?, ?, ?, ?)"
+
 	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
 
 	defer cancelfunc()
 
-	res, err := database.ExecContext(ctx, query)
+	// preparing the query statement to be executed
+	query_stmt, err := db.PrepareContext(ctx, query)
+
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 
-	rows, err := res.RowsAffected()
+	defer query_stmt.Close()
+
+	// executing the query statement to add values to a row
+	response, err := query_stmt.ExecContext(ctx, data_struct.Gene_name, data_struct.Data.Gene.Start, data_struct.Data.Gene.Stop, data_struct.Data.Gene.Omim_id, data_struct.Data.Gene.Name, data_struct.Data.Gene.Chrom)
+
 	if err != nil {
 		log.Fatal(err)
+		return err
 	}
 
-	log.Printf("Rows affected when creating table: %d", rows)
+	_, err = response.RowsAffected()
 
-	// continue following this https://golangbot.com/mysql-create-table-insert-row/
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 
+	return nil
+}
+
+func make_table(database *sql.DB, dbName string, gene_info_list []Data) error {
+	fmt.Println("creating a mysql table...")
+
+	query := `CREATE TABLE IF NOT EXISTS ` + dbName + `(gene_id varchar(10), gene_start int,  
+        gene_stop int, OMIM_id varchar(10), gene_name varchar(50), chromosome_number int)`
+
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+
+	defer cancelfunc()
+
+	// executing the above query
+	_, err := database.ExecContext(ctx, query)
+
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	// creating a progress bar
+	bar := pb.StartNew(len(gene_info_list))
+
+	// iterating through each struct to place the info into a mysql
+	// database
+	fmt.Println("writing values to the database...")
+
+	for i := 0; i < len(gene_info_list); i++ {
+		err = insert(database, gene_info_list[i], dbName)
+
+		if err != nil {
+			log.Fatal(err)
+			return err
+		}
+		bar.Increment()
+	}
+	bar.Finish()
+
+	return nil
 }
