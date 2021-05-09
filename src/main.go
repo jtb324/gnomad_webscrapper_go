@@ -5,12 +5,16 @@ import (
 )
 
 func main() {
-	fmt.Println("Initializing the webscrapper...")
+	fmt.Println("Initializing program to gather gene information from gnomAD...")
 	//Parsing the inputs
 	input_path, _, api_endpoint := parser()
 
 	//going through the input file and getting a slice of all the genes
 	gene_slice := parse_input(input_path)
 
-	fetch_response(api_endpoint, gene_slice)
+	_ = fetch_response(api_endpoint, gene_slice)
+
+	db, dbName, _ := initialize_db()
+
+	make_table(db, dbName)
 }

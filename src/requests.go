@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 func format_query(gene_id string) []byte {
@@ -53,7 +55,8 @@ type gene_info struct {
 }
 
 type Data struct {
-	Data Gene `json:"data"`
+	Gene_name string
+	Data      Gene `json:"data"`
 }
 
 func fetch_response(api_website string, gene_list []string) []Data {
@@ -70,9 +73,13 @@ func fetch_response(api_website string, gene_list []string) []Data {
 
 	var gene_info_slice []Data
 
+	bar := pb.StartNew(len(gene_list))
+
 	for i := 0; i < len(gene_list); i++ {
 
-		jsonByteString := format_query(gene_list[i])
+		gene_name := gene_list[i]
+
+		jsonByteString := format_query(gene_name)
 		// fmt.Println(jsonByteString)
 		request, error := http.NewRequest("POST", api_website, bytes.NewBuffer(jsonByteString))
 
@@ -89,7 +96,7 @@ func fetch_response(api_website string, gene_list []string) []Data {
 			log.Fatalf("The HTTP request failed with error %s\n", response_err)
 		}
 
-		//deferiing the responses close
+		//defering the responses close
 		defer response.Body.Close()
 
 		data, _ := ioutil.ReadAll(response.Body)
@@ -99,7 +106,9 @@ func fetch_response(api_website string, gene_list []string) []Data {
 
 		json.Unmarshal(data, &json_response)
 
+		json_response.Gene_name = gene_name
 		//creating a slice that has all the gene information from the api
+
 		gene_info_slice = append(gene_info_slice, json_response)
 		//updating request counter
 		request_made++
@@ -107,6 +116,8 @@ func fetch_response(api_website string, gene_list []string) []Data {
 		if request_made%4 == 0 {
 			time.Sleep(time.Second)
 		}
+		bar.Increment()
 	}
+	bar.Finish()
 	return gene_info_slice
 }
