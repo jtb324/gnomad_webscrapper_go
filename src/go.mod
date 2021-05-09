@@ -1,4 +1,4 @@
-module github.com/jtb324/gnomad_webscrapper_go.git
+module github.com/jtb324/mega_probe_converter.git
 
 go 1.16
 
