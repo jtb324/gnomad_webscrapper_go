@@ -10,7 +10,7 @@ func Test_fetch_response(t *testing.T) {
 
 	gene_list = append(gene_list, "EXT1", "CFTR")
 
-	data_slice := fetch_response("https://gnomad.broadinstitute.org/api", gene_list)
+	data_slice := fetch_response("https://gnomad.broadinstitute.org/api", gene_list, "./")
 
 	if len(data_slice) != 2 {
 		t.Errorf("Expectecd the returned slice to have a length of 2 instead it had a length of %d", len(data_slice))
@@ -23,7 +23,7 @@ func Test_fetch_response_values(t *testing.T) {
 
 	gene_list = append(gene_list, "HPSE", "EXT1", "CFTR")
 
-	data_slice := fetch_response("https://gnomad.broadinstitute.org/api", gene_list)
+	data_slice := fetch_response("https://gnomad.broadinstitute.org/api", gene_list, "./")
 
 	hpse_info := data_slice[0]
 

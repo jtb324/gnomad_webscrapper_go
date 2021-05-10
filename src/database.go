@@ -113,6 +113,35 @@ func create_new_db(database *sql.DB, databaseName string) error {
 	return err
 }
 
+func remove_prior_db(db *sql.DB, dbName string) error {
+	/*function to remove the previous database that was made if the user wants to remake a database
+	Parameters
+	__________
+	db *sql.DB
+		pointer to the database object
+
+	dbName string
+		string that has the database name
+
+	Returns
+	_______
+	error
+		will return the error if an error is encountered if not then it returns nil
+	*/
+	fmt.Println("Removing any existing database at the provided name")
+
+	ctx, cancelfunc := context.WithTimeout(context.Background(), 5*time.Second)
+
+	defer cancelfunc()
+
+	_, err := db.ExecContext(ctx, "DROP DATABASE IF EXISTS "+dbName)
+
+	if err != nil {
+		log.Printf("Error %s when creating DB\n", err)
+	}
+
+	return err
+}
 func initialize_db() (*sql.DB, string, error) {
 	/* function to create the database */
 
@@ -124,6 +153,7 @@ func initialize_db() (*sql.DB, string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	_ = remove_prior_db(database, parameters.dbName)
 
 	_ = create_new_db(database, parameters.dbName)
 

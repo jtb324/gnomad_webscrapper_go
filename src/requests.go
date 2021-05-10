@@ -59,7 +59,7 @@ type Data struct {
 	Data      Gene `json:"data"`
 }
 
-func fetch_response(api_website string, gene_list []string) []Data {
+func fetch_response(api_website string, gene_list []string, output_path string) []Data {
 	/*function to fetch the reponse from the the bnomad api
 	Parameters
 	__________

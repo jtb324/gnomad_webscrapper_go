@@ -13,8 +13,10 @@ func parser() (string, string, string) {
 	var api_string string
 
 	flag.StringVar(&input, "input", "0", "flag for the input file to get a list of genes from")
-	//creating a pointer that has a string for the output
-	flag.StringVar(&output, "output", "0", "flag for the output directory to write the output to")
+	//creating a pointer that has a string for the output.
+	// This should be mysql to write to a database or
+	// a filepath to specify output directory
+	flag.StringVar(&output, "output", "0", "flag to check how the user wants to output data")
 	//creating a pointer to a string that has the api endpoint
 	flag.StringVar(&api_string, "api", "0", "flag for the hyperlink to the api endpoint")
 	flag.Parse()
