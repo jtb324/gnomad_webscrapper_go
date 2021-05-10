@@ -9,7 +9,7 @@ import (
 func write_to_file(geneData []Data, output_path string) error {
 	fmt.Println("writing the returned information to a text file at " + output_path)
 
-	file, err := os.Create(output_path + "test.txt")
+	file, err := os.Create(output_path)
 
 	if err != nil {
 		log.Fatal(err)
